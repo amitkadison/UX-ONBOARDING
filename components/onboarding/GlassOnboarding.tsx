@@ -195,7 +195,7 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
       {/* Google Font Import & Animations */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@600;700&family=Inter:wght@300;400;600&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@600;700&family=Inter:wght@300;400;600&family=Heebo:wght@400;500;600;700&display=swap');
 
           /* Hide scrollbar */
           .hide-scrollbar::-webkit-scrollbar {
@@ -204,6 +204,33 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
           .hide-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+          }
+
+          /* Message Entry Animation - Slide Up & Fade */
+          @keyframes slideUpFade {
+            0% {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .message-bubble {
+            animation: slideUpFade 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          }
+
+          /* Option Chip Interactions */
+          .option-chip {
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+          }
+          .option-chip:hover:not(:disabled) {
+            transform: translateY(-2px);
+          }
+          .option-chip:active:not(:disabled) {
+            transform: scale(0.97);
           }
 
           /* Generating Loader Animations */
@@ -338,50 +365,65 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
         paddingBottom: '120px',
       }}>
 
-        {/* Fixed Header - Glass Style */}
+        {/* Fixed Header - Fully Transparent Container */}
         <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
-          zIndex: 200,
-          padding: '24px 0',
-          background: 'rgba(255, 255, 255, 0.7)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+          width: '100%',
+          zIndex: 100,
+          padding: '28px 0 20px 0',
+          background: 'transparent',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          pointerEvents: 'none',
         }}>
+          {/* Title Text - iOS Typography */}
           <h1 style={{
             margin: 0,
             textAlign: 'center',
-            fontSize: '32px',
+            fontSize: '40px',
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #8B2A9B 0%, #5B3A8C 50%, #4A6FA5 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            letterSpacing: '0.5px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            color: '#4A2C6D',
+            letterSpacing: '-0.3px',
           }}>
-            בואו נכיר
+            Let's Get to Know Each Other
           </h1>
+
+          {/* Gradient Bar Image */}
+          <img
+            src="/Group 33061.png"
+            alt=""
+            style={{
+              marginTop: '-5px',
+              width: '550px',
+              height: 'auto',
+              objectFit: 'contain',
+            }}
+          />
         </div>
 
-        {/* Messages Area - Centered Column - RTL */}
+        {/* Messages Area - Transparent Container (bubbles float on background) */}
         <div className="hide-scrollbar" style={{
           flex: 1,
           width: '100%',
           maxWidth: '1100px',
           margin: '0 auto',
           padding: '0 24px',
-          paddingTop: '120px',
           paddingBottom: '150px',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
           direction: 'rtl',
+          zIndex: 1,
         }}>
+          {/* Top Spacer - Pushes first message below header */}
+          <div style={{ height: '200px', width: '100%', flexShrink: 0 }} />
+
           {messages.map((message, index) => (
             <div
               key={index}
@@ -391,50 +433,54 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 width: '100%',
               }}
             >
-              {/* User message - LEFT side (RTL) - Super Shiny Glass with Purple Tint - Pill Shape */}
+              {/* User message - LEFT side (RTL) - Premium Purple Glass */}
               {message.role === 'user' && (
-                <div style={{
-                  alignSelf: 'flex-start',
-                  width: 'fit-content',
-                  maxWidth: '85%',
-                  padding: '16px 24px',
-                  borderRadius: '30px',
-                  background: 'rgba(139, 42, 155, 0.12)',
-                  backdropFilter: 'blur(25px)',
-                  WebkitBackdropFilter: 'blur(25px)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                  boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 8px 32px rgba(139, 42, 155, 0.15)',
-                  color: '#2d1b35',
-                  fontSize: '17px',
-                  fontWeight: 400,
-                  lineHeight: '1.65',
-                  textAlign: 'right',
-                  direction: 'rtl',
-                }}>
+                <div
+                  className="message-bubble"
+                  style={{
+                    alignSelf: 'flex-start',
+                    width: 'fit-content',
+                    maxWidth: '85%',
+                    padding: '16px 24px',
+                    borderRadius: '30px',
+                    background: 'linear-gradient(135deg, rgba(139, 42, 155, 0.85) 0%, rgba(74, 111, 165, 0.9) 100%)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 8px 32px rgba(139, 42, 155, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.6)',
+                    color: '#FFFFFF',
+                    fontSize: '17px',
+                    fontWeight: 400,
+                    lineHeight: '1.65',
+                    textAlign: 'right',
+                    direction: 'rtl',
+                  }}>
                   {message.content}
                 </div>
               )}
 
-              {/* Assistant message - RIGHT side (RTL) with avatar on right - Super Shiny Clear Glass - Pill Shape */}
+              {/* Assistant message - RIGHT side (RTL) with avatar on right - Premium White Glass */}
               {message.role === 'assistant' && (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'row-reverse',
-                  alignSelf: 'flex-end',
-                  gap: '12px',
-                  alignItems: 'flex-start',
-                  maxWidth: '85%',
-                }}>
+                <div
+                  className="message-bubble"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row-reverse',
+                    alignSelf: 'flex-end',
+                    gap: '12px',
+                    alignItems: 'flex-start',
+                    maxWidth: '85%',
+                  }}>
                   <div style={{
                     width: 'fit-content',
                     maxWidth: '100%',
                     padding: '16px 24px',
                     borderRadius: '30px',
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(25px)',
-                    WebkitBackdropFilter: 'blur(25px)',
-                    border: '1px solid rgba(255, 255, 255, 0.4)',
-                    boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.1)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '2px solid rgba(255, 255, 255, 0.8)',
+                    boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.05), inset 0 2px 4px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 2px 0 rgba(0, 0, 0, 0.02)',
                     color: '#1a1a2e',
                     fontSize: '17px',
                     fontWeight: 400,
@@ -456,6 +502,7 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                             return (
                               <button
                                 key={idx}
+                                className="option-chip"
                                 onClick={() => handleServiceToggle(service)}
                                 disabled={!isSelected && tempSelectedServices.length >= 3}
                                 style={{
@@ -463,38 +510,24 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                                   borderRadius: '50px',
                                   fontSize: '16px',
                                   fontWeight: 500,
+                                  fontFamily: "'Heebo', -apple-system, BlinkMacSystemFont, sans-serif",
                                   border: isSelected
-                                    ? '1.5px solid rgba(140, 80, 255, 0.6)'
-                                    : '1.5px solid rgba(140, 80, 255, 0.3)',
+                                    ? '1px solid rgba(255, 255, 255, 0.4)'
+                                    : '1px solid rgba(255, 255, 255, 0.4)',
                                   cursor: (!isSelected && tempSelectedServices.length >= 3) ? 'not-allowed' : 'pointer',
                                   background: isSelected
                                     ? 'rgba(140, 80, 255, 0.25)'
-                                    : 'rgba(140, 80, 255, 0.12)',
-                                  backdropFilter: 'blur(10px)',
-                                  WebkitBackdropFilter: 'blur(10px)',
-                                  color: isSelected ? '#5B2A8C' : '#7B4AA5',
+                                    : 'rgba(255, 255, 255, 0.5)',
+                                  backdropFilter: 'blur(15px)',
+                                  WebkitBackdropFilter: 'blur(15px)',
+                                  color: isSelected ? '#5B2A8C' : '#4A2C6D',
                                   boxShadow: isSelected
-                                    ? '0 4px 16px rgba(140, 80, 255, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.3)'
-                                    : '0 2px 8px rgba(140, 80, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.2)',
+                                    ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.6), 0 8px 25px rgba(140, 80, 255, 0.3)'
+                                    : 'inset 0 1px 0 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 0 rgba(255, 255, 255, 0.1), 0 4px 15px rgba(0, 0, 0, 0.08)',
                                   opacity: (!isSelected && tempSelectedServices.length >= 3) ? 0.4 : 1,
-                                  transition: 'all 0.3s ease',
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '8px',
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!isSelected && !(tempSelectedServices.length >= 3)) {
-                                    e.currentTarget.style.background = 'rgba(140, 80, 255, 0.18)';
-                                    e.currentTarget.style.border = '1.5px solid rgba(140, 80, 255, 0.5)';
-                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(140, 80, 255, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3)';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (!isSelected) {
-                                    e.currentTarget.style.background = 'rgba(140, 80, 255, 0.12)';
-                                    e.currentTarget.style.border = '1.5px solid rgba(140, 80, 255, 0.3)';
-                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(140, 80, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.2)';
-                                  }
                                 }}
                               >
                                 {isSelected && <span style={{ fontSize: '16px' }}>✓</span>}
@@ -504,24 +537,37 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                           })}
                         </div>
                         {tempSelectedServices.length > 0 && (
-                          <button
-                            onClick={handleConfirmServices}
-                            style={{
-                              width: '100%',
-                              padding: '12px',
-                              borderRadius: '12px',
-                              fontSize: '15px',
-                              fontWeight: 600,
-                              border: 'none',
-                              cursor: 'pointer',
-                              background: 'linear-gradient(135deg, #8B2A9B 0%, #5B3A8C 50%, #4A6FA5 100%)',
-                              color: 'white',
-                              boxShadow: '0 4px 16px rgba(139, 42, 155, 0.3)',
-                              transition: 'all 0.2s ease',
-                            }}
-                          >
-                            המשך עם {tempSelectedServices.length} שירותים שנבחרו
-                          </button>
+                          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                            <button
+                              onClick={handleConfirmServices}
+                              style={{
+                                width: 'fit-content',
+                                padding: '14px 32px',
+                                borderRadius: '50px',
+                                fontSize: '16px',
+                                fontWeight: 700,
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                                border: 'none',
+                                cursor: 'pointer',
+                                background: 'linear-gradient(135deg, rgba(140, 80, 255, 0.9) 0%, rgba(100, 50, 240, 0.95) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                WebkitBackdropFilter: 'blur(10px)',
+                                color: 'white',
+                                boxShadow: '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                                transition: 'all 0.3s ease',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 14px 30px rgba(120, 60, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                              }}
+                            >
+                              המשך עם {tempSelectedServices.length} שירותים שנבחרו
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -566,31 +612,47 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                             </div>
                           ))}
                         </div>
-                        <button
-                          onClick={() => handleConfirmCustomerMappings(message.servicesForMapping!)}
-                          disabled={message.servicesForMapping.some(s => !customerMappings[s]?.trim())}
-                          style={{
-                            width: '100%',
-                            padding: '12px',
-                            marginTop: '14px',
-                            borderRadius: '12px',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            border: 'none',
-                            cursor: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 'not-allowed' : 'pointer',
-                            background: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
-                              ? 'rgba(200, 200, 220, 0.4)'
-                              : 'linear-gradient(135deg, #8B2A9B 0%, #5B3A8C 50%, #4A6FA5 100%)',
-                            color: 'white',
-                            boxShadow: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
-                              ? 'none'
-                              : '0 4px 16px rgba(139, 42, 155, 0.3)',
-                            opacity: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 0.6 : 1,
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          המשך
-                        </button>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                          <button
+                            onClick={() => handleConfirmCustomerMappings(message.servicesForMapping!)}
+                            disabled={message.servicesForMapping.some(s => !customerMappings[s]?.trim())}
+                            style={{
+                              width: 'fit-content',
+                              padding: '14px 32px',
+                              borderRadius: '50px',
+                              fontSize: '16px',
+                              fontWeight: 700,
+                              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                              border: 'none',
+                              cursor: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 'not-allowed' : 'pointer',
+                              background: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
+                                ? 'rgba(200, 200, 220, 0.5)'
+                                : 'linear-gradient(135deg, rgba(140, 80, 255, 0.9) 0%, rgba(100, 50, 240, 0.95) 100%)',
+                              backdropFilter: 'blur(10px)',
+                              WebkitBackdropFilter: 'blur(10px)',
+                              color: 'white',
+                              boxShadow: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
+                                ? 'none'
+                                : '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                              opacity: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 0.6 : 1,
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!message.servicesForMapping?.some(s => !customerMappings[s]?.trim())) {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 14px 30px rgba(120, 60, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = 'translateY(0)';
+                              if (!message.servicesForMapping?.some(s => !customerMappings[s]?.trim())) {
+                                e.currentTarget.style.boxShadow = '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                              }
+                            }}
+                          >
+                            המשך
+                          </button>
+                        </div>
                       </div>
                     )}
 
@@ -641,15 +703,19 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Floating Input Capsule - Super Shiny Glass */}
+        {/* Fixed Bottom Input Area - Transparent Container */}
         <div style={{
           position: 'fixed',
-          bottom: '30px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '90%',
-          maxWidth: '950px',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
           zIndex: 100,
+          padding: '20px 24px 30px 24px',
+          background: 'transparent',
+          display: 'flex',
+          justifyContent: 'center',
+          pointerEvents: 'none',
         }}>
           <div style={{
             display: 'flex',
@@ -657,12 +723,15 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
             gap: '12px',
             padding: '14px 20px',
             borderRadius: '999px',
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(25px)',
-            WebkitBackdropFilter: 'blur(25px)',
-            border: '1px solid rgba(255, 255, 255, 0.4)',
-            boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.15)',
+            width: '100%',
+            maxWidth: '950px',
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.4) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '2px solid rgba(255, 255, 255, 0.8)',
+            boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.08), inset 0 2px 4px 0 rgba(255, 255, 255, 0.9)',
             direction: 'rtl',
+            pointerEvents: 'auto',
           }}>
             <input
               type="text"
