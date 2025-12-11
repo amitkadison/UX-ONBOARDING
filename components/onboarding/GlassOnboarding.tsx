@@ -228,6 +228,9 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
           }
           .option-chip:hover:not(:disabled) {
             transform: translateY(-2px);
+            background: #FFF8F6 !important;
+            border-color: rgba(255, 200, 180, 0.6) !important;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1.0) !important;
           }
           .option-chip:active:not(:disabled) {
             transform: scale(0.97);
@@ -365,16 +368,18 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
         paddingBottom: '120px',
       }}>
 
-        {/* Fixed Header - Fully Transparent Container */}
+        {/* Fixed Header - Glass Blur Effect */}
         <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           width: '100%',
-          zIndex: 100,
+          zIndex: 50,
           padding: '28px 0 20px 0',
-          background: 'transparent',
+          background: 'rgba(255, 255, 255, 0.01)',
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -406,23 +411,22 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
           />
         </div>
 
-        {/* Messages Area - Transparent Container (bubbles float on background) */}
+        {/* Messages Area - Full Height Scroll Container */}
         <div className="hide-scrollbar" style={{
-          flex: 1,
+          height: '100vh',
           width: '100%',
           maxWidth: '1100px',
           margin: '0 auto',
           padding: '0 24px',
-          paddingBottom: '150px',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
           direction: 'rtl',
-          zIndex: 1,
+          zIndex: 0,
         }}>
           {/* Top Spacer - Pushes first message below header */}
-          <div style={{ height: '200px', width: '100%', flexShrink: 0 }} />
+          <div style={{ height: '180px', width: '100%', flexShrink: 0 }} />
 
           {messages.map((message, index) => (
             <div
@@ -433,7 +437,7 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 width: '100%',
               }}
             >
-              {/* User message - LEFT side (RTL) - Premium Purple Glass */}
+              {/* User message - LEFT side (RTL) - Warm Champagne Glass */}
               {message.role === 'user' && (
                 <div
                   className="message-bubble"
@@ -443,15 +447,17 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                     maxWidth: '85%',
                     padding: '16px 24px',
                     borderRadius: '30px',
-                    background: 'linear-gradient(135deg, rgba(139, 42, 155, 0.85) 0%, rgba(74, 111, 165, 0.9) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255, 245, 240, 0.85) 0%, rgba(255, 235, 230, 0.7) 100%)',
                     backdropFilter: 'blur(20px)',
                     WebkitBackdropFilter: 'blur(20px)',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 8px 32px rgba(139, 42, 155, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.6)',
-                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 230, 220, 0.6)',
+                    boxShadow: '0 4px 15px rgba(255, 150, 100, 0.1), inset 0 2px 0 rgba(255, 255, 255, 0.9)',
+                    color: '#3F3C38',
                     fontSize: '17px',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
                     fontWeight: 400,
-                    lineHeight: '1.65',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.55',
                     textAlign: 'right',
                     direction: 'rtl',
                   }}>
@@ -459,7 +465,7 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 </div>
               )}
 
-              {/* Assistant message - RIGHT side (RTL) with avatar on right - Premium White Glass */}
+              {/* Assistant message - RIGHT side (RTL) with avatar on right - Crystal Clear Glass */}
               {message.role === 'assistant' && (
                 <div
                   className="message-bubble"
@@ -476,27 +482,44 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                     maxWidth: '100%',
                     padding: '16px 24px',
                     borderRadius: '30px',
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.4) 100%)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '2px solid rgba(255, 255, 255, 0.8)',
-                    boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.05), inset 0 2px 4px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 2px 0 rgba(0, 0, 0, 0.02)',
-                    color: '#1a1a2e',
+                    background: 'linear-gradient(145deg, #FFFFFF 0%, #F5F7FA 100%)',
+                    border: '1px solid #E2E8F0',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
+                    color: '#1E293B',
                     fontSize: '17px',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
                     fontWeight: 400,
-                    lineHeight: '1.65',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.55',
                     textAlign: 'right',
                     direction: 'rtl',
                   }}>
                     <p style={{ margin: 0, marginBottom: '12px', whiteSpace: 'pre-wrap' }}>{message.content}</p>
 
-                    {/* Service Selection UI */}
+                    {/* Service Selection UI - Solid Porcelain Control Panel */}
                     {message.services && message.services.length > 0 && (
-                      <div style={{ marginTop: '16px' }}>
-                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#666', marginBottom: '8px' }}>
+                      <div style={{
+                        marginTop: '20px',
+                        padding: '28px',
+                        background: 'linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%)',
+                        borderRadius: '24px',
+                        border: '1px solid #E2E8F0',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 10px 15px -3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
+                      }}>
+                        <p style={{
+                          fontSize: '15px',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                          fontWeight: 400,
+                          color: '#64748B',
+                          letterSpacing: '-0.01em',
+                          marginBottom: '16px',
+                          paddingBottom: '12px',
+                          borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                          lineHeight: '1.5',
+                        }}>
                           לחץ על השירותים שתרצה לפרסם (1-3):
                         </p>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
                           {message.services.map((service, idx) => {
                             const isSelected = tempSelectedServices.includes(service);
                             return (
@@ -512,22 +535,21 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                                   fontWeight: 500,
                                   fontFamily: "'Heebo', -apple-system, BlinkMacSystemFont, sans-serif",
                                   border: isSelected
-                                    ? '1px solid rgba(255, 255, 255, 0.4)'
-                                    : '1px solid rgba(255, 255, 255, 0.4)',
+                                    ? '1px solid rgba(255, 220, 200, 0.7)'
+                                    : '1px solid #E2E8F0',
                                   cursor: (!isSelected && tempSelectedServices.length >= 3) ? 'not-allowed' : 'pointer',
                                   background: isSelected
-                                    ? 'rgba(140, 80, 255, 0.25)'
-                                    : 'rgba(255, 255, 255, 0.5)',
-                                  backdropFilter: 'blur(15px)',
-                                  WebkitBackdropFilter: 'blur(15px)',
-                                  color: isSelected ? '#5B2A8C' : '#4A2C6D',
+                                    ? 'linear-gradient(135deg, rgba(255, 245, 240, 0.95) 0%, rgba(255, 235, 230, 0.9) 100%)'
+                                    : '#FFFFFF',
+                                  color: isSelected ? '#423D38' : '#1E293B',
                                   boxShadow: isSelected
-                                    ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.6), 0 8px 25px rgba(140, 80, 255, 0.3)'
-                                    : 'inset 0 1px 0 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 0 rgba(255, 255, 255, 0.1), 0 4px 15px rgba(0, 0, 0, 0.08)',
+                                    ? '0 4px 15px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 0.9)'
+                                    : '0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
                                   opacity: (!isSelected && tempSelectedServices.length >= 3) ? 0.4 : 1,
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '8px',
+                                  transition: 'all 0.2s ease',
                                 }}
                               >
                                 {isSelected && <span style={{ fontSize: '16px' }}>✓</span>}
@@ -545,24 +567,22 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                                 padding: '14px 32px',
                                 borderRadius: '50px',
                                 fontSize: '16px',
-                                fontWeight: 700,
+                                fontWeight: 600,
                                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                                border: 'none',
+                                border: '1px solid rgba(255, 220, 200, 0.5)',
                                 cursor: 'pointer',
-                                background: 'linear-gradient(135deg, rgba(140, 80, 255, 0.9) 0%, rgba(100, 50, 240, 0.95) 100%)',
-                                backdropFilter: 'blur(10px)',
-                                WebkitBackdropFilter: 'blur(10px)',
-                                color: 'white',
-                                boxShadow: '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                                background: 'linear-gradient(135deg, rgba(255, 240, 235, 0.95) 0%, rgba(255, 230, 220, 0.9) 100%)',
+                                color: '#423D38',
+                                boxShadow: '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)',
                                 transition: 'all 0.3s ease',
                               }}
                               onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 14px 30px rgba(120, 60, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+                                e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 150, 100, 0.2), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
                               }}
                             >
                               המשך עם {tempSelectedServices.length} שירותים שנבחרו
@@ -572,16 +592,39 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                       </div>
                     )}
 
-                    {/* Customer Mapping Form */}
+                    {/* Customer Mapping Form - Solid Porcelain Control Panel */}
                     {message.showCustomerMapping && message.servicesForMapping && message.servicesForMapping.length > 0 && (
-                      <div style={{ marginTop: '16px' }}>
-                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#666', marginBottom: '12px' }}>
+                      <div style={{
+                        marginTop: '20px',
+                        padding: '28px',
+                        background: 'linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%)',
+                        borderRadius: '24px',
+                        border: '1px solid #E2E8F0',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 10px 15px -3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
+                      }}>
+                        <p style={{
+                          fontSize: '15px',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                          fontWeight: 400,
+                          color: '#64748B',
+                          letterSpacing: '-0.01em',
+                          marginBottom: '16px',
+                          paddingBottom: '12px',
+                          borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                          lineHeight: '1.5',
+                        }}>
                           למלא עבור כל שירות מי הלקוחות:
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                           {message.servicesForMapping.map((service, idx) => (
-                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <label style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e' }}>
+                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: idx > 0 ? '8px' : '0' }}>
+                              <label style={{
+                                fontSize: '15px',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                                fontWeight: 600,
+                                color: '#1E293B',
+                                letterSpacing: '-0.01em',
+                              }}>
                                 {service}
                               </label>
                               <input
@@ -621,32 +664,34 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                               padding: '14px 32px',
                               borderRadius: '50px',
                               fontSize: '16px',
-                              fontWeight: 700,
+                              fontWeight: 600,
                               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                              border: 'none',
+                              border: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
+                                ? '1px solid rgba(200, 200, 220, 0.4)'
+                                : '1px solid rgba(255, 220, 200, 0.5)',
                               cursor: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 'not-allowed' : 'pointer',
                               background: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
-                                ? 'rgba(200, 200, 220, 0.5)'
-                                : 'linear-gradient(135deg, rgba(140, 80, 255, 0.9) 0%, rgba(100, 50, 240, 0.95) 100%)',
-                              backdropFilter: 'blur(10px)',
-                              WebkitBackdropFilter: 'blur(10px)',
-                              color: 'white',
+                                ? 'rgba(240, 240, 245, 0.5)'
+                                : 'linear-gradient(135deg, rgba(255, 240, 235, 0.95) 0%, rgba(255, 230, 220, 0.9) 100%)',
+                              color: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
+                                ? '#999'
+                                : '#423D38',
                               boxShadow: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
                                 ? 'none'
-                                : '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+                                : '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)',
                               opacity: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 0.6 : 1,
                               transition: 'all 0.3s ease',
                             }}
                             onMouseEnter={(e) => {
                               if (!message.servicesForMapping?.some(s => !customerMappings[s]?.trim())) {
                                 e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 14px 30px rgba(120, 60, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+                                e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 150, 100, 0.2), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
                               }
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.transform = 'translateY(0)';
                               if (!message.servicesForMapping?.some(s => !customerMappings[s]?.trim())) {
-                                e.currentTarget.style.boxShadow = '0 10px 25px rgba(120, 60, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
                               }
                             }}
                           >
@@ -700,19 +745,24 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
             </div>
           ))}
 
+          {/* Bottom Spacer - Allows last message to scroll above input bar */}
+          <div style={{ height: '130px', width: '100%', flexShrink: 0 }} />
+
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Fixed Bottom Input Area - Transparent Container */}
+        {/* Fixed Bottom Input Area - Glass Blur Effect */}
         <div style={{
           position: 'fixed',
           bottom: 0,
           left: 0,
           right: 0,
           width: '100%',
-          zIndex: 100,
+          zIndex: 50,
           padding: '20px 24px 30px 24px',
-          background: 'transparent',
+          background: 'rgba(255, 255, 255, 0.01)',
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
           display: 'flex',
           justifyContent: 'center',
           pointerEvents: 'none',
@@ -746,7 +796,8 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 border: 'none',
                 outline: 'none',
                 fontSize: '16px',
-                color: '#1a1a2e',
+                fontWeight: 500,
+                color: '#0F172A',
                 fontFamily: 'inherit',
                 direction: 'rtl',
                 textAlign: 'right',
