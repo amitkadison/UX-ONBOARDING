@@ -39,9 +39,40 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
   const [tempSelectedServices, setTempSelectedServices] = useState<string[]>([]);
   const [customerMappings, setCustomerMappings] = useState<Record<string, string>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+  // Smart Scroll: Detects message size and scrolls appropriately
+  // Uses setTimeout to wait for DOM to fully paint the new message text
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const timeoutId = setTimeout(() => {
+      const container = messagesContainerRef.current;
+      if (!container) return;
+
+      // Get all message row elements
+      const messageRows = container.querySelectorAll('[data-message-row]');
+      const lastMessageElement = messageRows[messageRows.length - 1] as HTMLElement;
+
+      if (lastMessageElement) {
+        // Get accurate measurements AFTER render is complete
+        const messageHeight = lastMessageElement.getBoundingClientRect().height;
+        const viewportHeight = window.innerHeight;
+        const headerOffset = 180; // Size of Header + Top Safe Area
+        const inputOffset = 120;  // Size of Input Bar
+        const visibleSpace = viewportHeight - headerOffset - inputOffset;
+
+        if (messageHeight > visibleSpace) {
+          // SCENARIO A: Long Message - Scroll so TOP of message is visible
+          console.log('Long message detected - Scrolling to START');
+          lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          // SCENARIO B: Short Message - Scroll to bottom as usual
+          console.log('Short message detected - Scrolling to END');
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      }
+    }, 100); // 100ms delay - critical for accurate height measurement!
+
+    return () => clearTimeout(timeoutId);
   }, [messages]);
 
   // Start conversation on mount
@@ -466,16 +497,20 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
         zIndex: 0,
       }} />
 
-      {/* Full Screen Chat Canvas - No Container */}
+      {/* Glass Column - Center Stage Layout */}
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
         position: 'relative',
         zIndex: 1,
         width: '100%',
+        maxWidth: '900px',
+        margin: '0 auto',
         minHeight: '100vh',
-        paddingTop: '50px',
-        paddingBottom: '100px',
+        background: 'rgba(255, 255, 255, 0.25)',
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(40px)',
+        borderLeft: '1px solid rgba(255, 255, 255, 0.3)',
+        borderRight: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: '0 0 80px rgba(0, 0, 0, 0.03)',
       }}>
 
         {/* Fixed Header - Glass Blur Effect - HARD OVERRIDE */}
@@ -523,56 +558,66 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
           />
         </div>
 
-        {/* Messages Area - Full Height Scroll Container */}
-        <div className="hide-scrollbar" style={{
-          height: '100vh',
-          width: '100%',
-          maxWidth: '1100px',
-          margin: '0 auto',
-          padding: '0 24px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-          direction: 'rtl',
-          zIndex: 0,
-        }}>
-          {/* Top Spacer - Pushes first message below header */}
-          <div style={{ height: '280px', width: '100%', flexShrink: 0 }} />
+        {/* Messages Area - Inside Glass Column */}
+        <div
+          ref={messagesContainerRef}
+          className="hide-scrollbar"
+          style={{
+            height: '100vh',
+            width: '100%',
+            padding: '180px 32px 140px 32px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            direction: 'rtl',
+            zIndex: 0,
+            scrollPaddingTop: '180px',
+          }}>
 
-          {messages.map((message, index) => (
+          {messages.map((message, index) => {
+            // Grouping Logic: Check if same speaker as previous message
+            const prevMessage = index > 0 ? messages[index - 1] : null;
+            const isSameSpeaker = prevMessage && prevMessage.role === message.role;
+            const marginTop = index === 0 ? '0' : (isSameSpeaker ? '8px' : '24px');
+
+            return (
             <div
               key={index}
+              data-message-row
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100%',
+                marginTop,
+                scrollMarginTop: '200px',
               }}
             >
-              {/* User message - LEFT side (RTL) - Clean Crystal Champagne */}
+              {/* User message - LEFT side (RTL) - Frosted Amber */}
               {message.role === 'user' && (
                 <div
                   className="message-bubble"
                   style={{
                     alignSelf: 'flex-start',
                     width: 'fit-content',
-                    maxWidth: '85%',
-                    padding: '16px 24px',
-                    borderRadius: '26px 26px 26px 4px',
-                    background: 'linear-gradient(180deg, rgba(255, 252, 250, 0.85) 0%, rgba(255, 240, 235, 0.65) 100%)',
+                    maxWidth: '75%',
+                    padding: '14px 22px',
+                    borderRadius: '24px 24px 24px 6px',
+                    background: 'linear-gradient(135deg, rgba(255, 250, 245, 0.95) 0%, rgba(255, 230, 220, 0.85) 100%)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(255, 255, 255, 0.4)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0), inset 0 -10px 20px rgba(255, 255, 255, 0.25)',
-                    color: '#3F3C38',
-                    fontSize: '17px',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                    border: '1px solid rgba(255, 255, 255, 0.8)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 1.0)',
+                    color: '#422006',
+                    fontSize: '16px',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
                     fontWeight: 500,
-                    letterSpacing: '-0.01em',
-                    lineHeight: '1.5',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.42',
                     textAlign: 'right',
                     direction: 'rtl',
-                  }}>
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                  } as React.CSSProperties}>
                   {message.content}
                 </div>
               )}
@@ -587,7 +632,7 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                     alignSelf: 'flex-end',
                     gap: '12px',
                     alignItems: 'flex-end',
-                    maxWidth: '85%',
+                    maxWidth: '75%',
                   }}>
                   <div
                     className="avatar-bounce"
@@ -609,46 +654,50 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                   <div style={{
                     width: 'fit-content',
                     maxWidth: '100%',
-                    padding: '16px 24px',
-                    borderRadius: '26px 26px 4px 26px',
-                    background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(240, 248, 255, 0.65) 100%)',
+                    padding: '14px 22px',
+                    borderRadius: '24px 24px 6px 24px',
+                    background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(235, 248, 255, 0.85) 100%)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(255, 255, 255, 0.4)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0), inset 0 -10px 20px rgba(255, 255, 255, 0.25)',
-                    color: '#1E293B',
-                    fontSize: '17px',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                    border: '1px solid #FFFFFF',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 1.0)',
+                    color: '#0F172A',
+                    fontSize: '16px',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
                     fontWeight: 500,
-                    letterSpacing: '-0.01em',
-                    lineHeight: '1.5',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.42',
                     textAlign: 'right',
                     direction: 'rtl',
-                  }}>
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                  } as React.CSSProperties}>
                     <p style={{ margin: 0, marginBottom: '12px', whiteSpace: 'pre-wrap' }}>{message.content}</p>
 
-                    {/* Service Selection UI - Solid Porcelain Control Panel */}
+                    {/* Service Selection UI - Frosted Moonstone Glass Card */}
                     {message.services && message.services.length > 0 && (
                       <div
                         className="control-panel"
                         style={{
                           marginTop: '20px',
-                          padding: '28px',
-                          background: 'linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%)',
-                          borderRadius: '24px',
-                          border: '1px solid #E2E8F0',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 10px 15px -3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
+                          padding: '24px',
+                          background: 'rgba(255, 255, 255, 0.75)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                          borderRadius: '20px',
+                          border: '1px solid rgba(255, 255, 255, 0.6)',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
                         }}>
                         <p style={{
-                          fontSize: '15px',
-                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                          fontWeight: 400,
+                          fontSize: '14px',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                          fontWeight: 500,
                           color: '#64748B',
-                          letterSpacing: '-0.01em',
+                          letterSpacing: '-0.015em',
                           marginBottom: '16px',
                           paddingBottom: '12px',
                           borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
-                          lineHeight: '1.5',
+                          lineHeight: '1.55',
                         }}>
                           לחץ על השירותים שתרצה לפרסם (1-3):
                         </p>
@@ -658,65 +707,67 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                             return (
                               <button
                                 key={idx}
-                                className="option-chip"
+                                className={`option-chip ${isSelected ? 'option-chip-selected' : ''}`}
                                 onClick={() => handleServiceToggle(service)}
                                 disabled={!isSelected && tempSelectedServices.length >= 3}
                                 style={{
-                                  padding: '12px 24px',
+                                  padding: '10px 20px',
                                   borderRadius: '50px',
-                                  fontSize: '16px',
+                                  fontSize: '15px',
                                   fontWeight: 500,
-                                  fontFamily: "'Heebo', -apple-system, BlinkMacSystemFont, sans-serif",
+                                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                                  letterSpacing: '-0.015em',
                                   border: isSelected
-                                    ? '1px solid rgba(255, 220, 200, 0.7)'
-                                    : '1px solid #E2E8F0',
+                                    ? '1.5px solid rgba(255, 180, 150, 0.8)'
+                                    : '1px solid rgba(0, 0, 0, 0.08)',
                                   cursor: (!isSelected && tempSelectedServices.length >= 3) ? 'not-allowed' : 'pointer',
                                   background: isSelected
-                                    ? 'linear-gradient(135deg, rgba(255, 245, 240, 0.95) 0%, rgba(255, 235, 230, 0.9) 100%)'
+                                    ? 'linear-gradient(135deg, rgba(255, 220, 200, 0.9) 0%, rgba(255, 190, 160, 0.8) 100%)'
                                     : '#FFFFFF',
-                                  color: isSelected ? '#423D38' : '#1E293B',
+                                  color: isSelected ? '#422006' : '#0F172A',
                                   boxShadow: isSelected
-                                    ? '0 4px 15px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 0.9)'
-                                    : '0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
+                                    ? '0 4px 12px rgba(255, 150, 100, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+                                    : '0 2px 4px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
                                   opacity: (!isSelected && tempSelectedServices.length >= 3) ? 0.4 : 1,
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '8px',
-                                  transition: 'all 0.2s ease',
+                                  gap: '6px',
+                                  transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                                 }}
                               >
-                                {isSelected && <span style={{ fontSize: '16px' }}>✓</span>}
+                                {isSelected && <span style={{ fontSize: '14px' }}>✓</span>}
                                 {service}
                               </button>
                             );
                           })}
                         </div>
                         {tempSelectedServices.length > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '18px' }}>
                             <button
                               className="btn-haptic"
                               onClick={handleConfirmServices}
                               style={{
                                 width: 'fit-content',
-                                padding: '14px 32px',
+                                padding: '12px 28px',
                                 borderRadius: '50px',
-                                fontSize: '16px',
+                                fontSize: '15px',
                                 fontWeight: 600,
-                                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                                border: '1px solid rgba(255, 220, 200, 0.5)',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                                letterSpacing: '-0.015em',
+                                border: '1.5px solid rgba(255, 180, 150, 0.6)',
                                 cursor: 'pointer',
-                                background: 'linear-gradient(135deg, rgba(255, 240, 235, 0.95) 0%, rgba(255, 230, 220, 0.9) 100%)',
-                                color: '#423D38',
-                                boxShadow: '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)',
-                                transition: 'all 0.3s ease',
+                                background: 'linear-gradient(135deg, rgba(255, 220, 200, 0.95) 0%, rgba(255, 180, 150, 0.85) 100%)',
+                                color: '#422006',
+                                boxShadow: '0 8px 20px -5px rgba(255, 150, 100, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                                transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 150, 100, 0.2), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
+                                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                                e.currentTarget.style.boxShadow = '0 12px 28px -5px rgba(255, 150, 100, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
                               }}
                               onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.boxShadow = '0 8px 20px -5px rgba(255, 150, 100, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
                               }}
                             >
                               המשך עם {tempSelectedServices.length} שירותים שנבחרו
@@ -726,28 +777,30 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                       </div>
                     )}
 
-                    {/* Customer Mapping Form - Solid Porcelain Control Panel */}
+                    {/* Customer Mapping Form - Frosted Moonstone Glass Card */}
                     {message.showCustomerMapping && message.servicesForMapping && message.servicesForMapping.length > 0 && (
                       <div
                         className="control-panel"
                         style={{
                           marginTop: '20px',
-                          padding: '28px',
-                          background: 'linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%)',
-                          borderRadius: '24px',
-                          border: '1px solid #E2E8F0',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 10px 15px -3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
+                          padding: '24px',
+                          background: 'rgba(255, 255, 255, 0.75)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                          borderRadius: '20px',
+                          border: '1px solid rgba(255, 255, 255, 0.6)',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
                         }}>
                         <p style={{
-                          fontSize: '15px',
-                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                          fontWeight: 400,
+                          fontSize: '14px',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                          fontWeight: 500,
                           color: '#64748B',
-                          letterSpacing: '-0.01em',
+                          letterSpacing: '-0.015em',
                           marginBottom: '16px',
                           paddingBottom: '12px',
                           borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
-                          lineHeight: '1.5',
+                          lineHeight: '1.55',
                         }}>
                           למלא עבור כל שירות מי הלקוחות:
                         </p>
@@ -755,11 +808,11 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                           {message.servicesForMapping.map((service, idx) => (
                             <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: idx > 0 ? '8px' : '0' }}>
                               <label style={{
-                                fontSize: '15px',
-                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                                fontSize: '14px',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
                                 fontWeight: 600,
-                                color: '#1E293B',
-                                letterSpacing: '-0.01em',
+                                color: '#0F172A',
+                                letterSpacing: '-0.015em',
                               }}>
                                 {service}
                               </label>
@@ -770,64 +823,71 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                                 onChange={(e) => handleCustomerMappingChange(service, e.target.value)}
                                 style={{
                                   width: '100%',
-                                  padding: '10px 14px',
-                                  fontSize: '14px',
-                                  border: '1.5px solid rgba(200, 200, 220, 0.4)',
-                                  borderRadius: '10px',
+                                  padding: '12px 16px',
+                                  fontSize: '15px',
+                                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                                  fontWeight: 500,
+                                  letterSpacing: '-0.015em',
+                                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                                  borderRadius: '12px',
                                   background: 'rgba(255, 255, 255, 0.9)',
+                                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.04)',
                                   outline: 'none',
                                   direction: 'rtl',
                                   textAlign: 'right',
+                                  transition: 'all 0.2s ease',
                                 }}
                                 onFocus={(e) => {
-                                  e.target.style.borderColor = '#8B2A9B';
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 42, 155, 0.1)';
+                                  e.target.style.borderColor = 'rgba(255, 180, 150, 0.8)';
+                                  e.target.style.boxShadow = '0 0 0 3px rgba(255, 150, 100, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.04)';
                                 }}
                                 onBlur={(e) => {
-                                  e.target.style.borderColor = 'rgba(200, 200, 220, 0.4)';
-                                  e.target.style.boxShadow = 'none';
+                                  e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
+                                  e.target.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.04)';
                                 }}
                               />
                             </div>
                           ))}
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '18px' }}>
                           <button
+                            className="btn-haptic"
                             onClick={() => handleConfirmCustomerMappings(message.servicesForMapping!)}
                             disabled={message.servicesForMapping.some(s => !customerMappings[s]?.trim())}
                             style={{
                               width: 'fit-content',
-                              padding: '14px 32px',
+                              padding: '12px 28px',
                               borderRadius: '50px',
-                              fontSize: '16px',
+                              fontSize: '15px',
                               fontWeight: 600,
-                              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                              letterSpacing: '-0.015em',
                               border: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
-                                ? '1px solid rgba(200, 200, 220, 0.4)'
-                                : '1px solid rgba(255, 220, 200, 0.5)',
+                                ? '1px solid rgba(0, 0, 0, 0.08)'
+                                : '1.5px solid rgba(255, 180, 150, 0.6)',
                               cursor: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 'not-allowed' : 'pointer',
                               background: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
                                 ? 'rgba(240, 240, 245, 0.5)'
-                                : 'linear-gradient(135deg, rgba(255, 240, 235, 0.95) 0%, rgba(255, 230, 220, 0.9) 100%)',
+                                : 'linear-gradient(135deg, rgba(255, 220, 200, 0.95) 0%, rgba(255, 180, 150, 0.85) 100%)',
                               color: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
-                                ? '#999'
-                                : '#423D38',
+                                ? '#94A3B8'
+                                : '#422006',
                               boxShadow: message.servicesForMapping.some(s => !customerMappings[s]?.trim())
                                 ? 'none'
-                                : '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)',
+                                : '0 8px 20px -5px rgba(255, 150, 100, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
                               opacity: message.servicesForMapping.some(s => !customerMappings[s]?.trim()) ? 0.6 : 1,
-                              transition: 'all 0.3s ease',
+                              transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                             }}
                             onMouseEnter={(e) => {
                               if (!message.servicesForMapping?.some(s => !customerMappings[s]?.trim())) {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 10px 30px rgba(255, 150, 100, 0.2), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
+                                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                                e.currentTarget.style.boxShadow = '0 12px 28px -5px rgba(255, 150, 100, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
                               }
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = 'translateY(0)';
+                              e.currentTarget.style.transform = 'translateY(0) scale(1)';
                               if (!message.servicesForMapping?.some(s => !customerMappings[s]?.trim())) {
-                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 150, 100, 0.15), inset 0 2px 0 rgba(255, 255, 255, 1.0)';
+                                e.currentTarget.style.boxShadow = '0 8px 20px -5px rgba(255, 150, 100, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
                               }
                             }}
                           >
@@ -864,7 +924,8 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
 
           {/* Typing Indicator - Shows when bot is thinking */}
           {isLoading && (
@@ -876,7 +937,7 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 alignSelf: 'flex-end',
                 gap: '12px',
                 alignItems: 'flex-end',
-                maxWidth: '85%',
+                maxWidth: '75%',
               }}>
               <div
                 className="avatar-bounce"
@@ -896,13 +957,13 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 />
               </div>
               <div style={{
-                padding: '20px 28px',
-                borderRadius: '26px 26px 4px 26px',
-                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(240, 248, 255, 0.65) 100%)',
+                padding: '18px 24px',
+                borderRadius: '24px 24px 6px 24px',
+                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(235, 248, 255, 0.85) 100%)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1.0), inset 0 -10px 20px rgba(255, 255, 255, 0.25)',
+                border: '1px solid #FFFFFF',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 1.0)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
@@ -929,43 +990,33 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
             </div>
           )}
 
-          {/* Bottom Spacer - Allows last message to scroll above input bar */}
-          <div style={{ height: '80px', width: '100%', flexShrink: 0 }} />
-
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Fixed Bottom Input Area - Glass Blur Effect - HARD OVERRIDE */}
+        {/* Fixed Bottom Input Area - Docked Inside Glass Column */}
         <div style={{
           position: 'fixed',
-          bottom: '24px',
-          left: '0',
+          bottom: '30px',
+          left: '50%',
+          transform: 'translateX(-50%)',
           width: '100%',
-          height: 'auto',
-          minHeight: '0',
-          padding: '0',
-          margin: '0',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-end',
+          maxWidth: '820px',
+          padding: '0 20px',
           zIndex: 100,
-          background: 'transparent',
           pointerEvents: 'none',
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            padding: '14px 20px',
-            margin: '0 24px',
+            gap: '14px',
+            padding: '14px 22px',
             borderRadius: '999px',
             width: '100%',
-            maxWidth: '950px',
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.4) 100%)',
+            background: 'rgba(255, 255, 255, 0.85)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            border: '2px solid rgba(255, 255, 255, 0.8)',
-            boxShadow: '0 4px 24px -1px rgba(0, 0, 0, 0.08), inset 0 2px 4px 0 rgba(255, 255, 255, 0.9)',
+            border: '1px solid rgba(255, 255, 255, 0.9)',
+            boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1.0)',
             direction: 'rtl',
             pointerEvents: 'auto',
           }}>
@@ -984,7 +1035,8 @@ export function GlassOnboarding({ onComplete }: GlassOnboardingProps) {
                 fontSize: '16px',
                 fontWeight: 500,
                 color: '#0F172A',
-                fontFamily: 'inherit',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif',
+                letterSpacing: '-0.015em',
                 direction: 'rtl',
                 textAlign: 'right',
               }}
